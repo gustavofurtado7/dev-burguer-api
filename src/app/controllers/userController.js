@@ -1,18 +1,18 @@
 import { v4 } from 'uuid'
 import * as Yup from 'yup'
 import User from '../models/User.js'
+import bcrypt from 'bcrypt'
 
 class UserController {
-
     async store(req, res) {
 
         try {
 
-            // Validação dos dados
+
             const schema = Yup.object({
                 name: Yup.string().required(),
                 email: Yup.string().email().required(),
-                password_hash: Yup.string().min(6).required(),
+                password: Yup.string().min(6).required(),
                 admin: Yup.boolean()
             })
 
@@ -21,10 +21,10 @@ class UserController {
                 strict: true
             })
 
-            // Pegando os dados do body
-            const { name, email, password_hash, admin } = req.body
 
-            // Verifica se o email já existe
+            const { name, email, password, admin } = req.body
+
+
             const existingUser = await User.findOne({
                 where: {
                     email
@@ -37,7 +37,9 @@ class UserController {
                 })
             }
 
-            // Cria o usuário
+            const password_hash = await bcrypt.hash(password, 10)
+
+
             const user = await User.create({
                 id: v4(),
                 name,
@@ -46,7 +48,7 @@ class UserController {
                 admin
             })
 
-            // Retorna o usuário criado
+
             return res.status(201).json({
                 id: user.id,
                 name: user.name,
