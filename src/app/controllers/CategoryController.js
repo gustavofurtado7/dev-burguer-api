@@ -1,45 +1,90 @@
-import * as Yup from 'yup'
-import Category from '../models/Category.js'
-import { response } from 'express'
+import * as Yup from "yup";
+import Category from "../models/Category.js";
+import { response } from "express";
 
 class CategoryController {
-    async store(req, res) {
-        const schema = Yup.object({
-            name: Yup.string().required(),
-        })
+  async store(req, res) {
+    const schema = Yup.object({
+      name: Yup.string().required(),
+    });
 
-        try {
-            schema.validateSync(req.body, { abortEarly: false, strict: true })
-        } catch (error) {
-            return res.status(400).json({ error: error.errors })
-        }
-
-        
-        const { name } = req.body;
-
-        const existingCategory = await Category.findOne({
-            where: {
-                name
-            }
-        })
-
-        if(existingCategory){
-            return response.status(400).json({error: 'Category already exists'})
-        }
-
-        const newCategory = await Category.create({
-            name,
-        });
-
-
-        return res.status(201).json({newCategory})
+    try {
+      schema.validateSync(req.body, { abortEarly: false, strict: true });
+    } catch (error) {
+      return res.status(400).json({ error: error.errors });
     }
 
-    async index(_req, res) {
-        const categories = await Category.findAll()
+    const { name } = req.body;
+    const { filename } = req.file;
 
-        return res.status(200).json(categories)
+    const existingCategory = await Category.findOne({
+      where: {
+        name,
+      },
+    });
+
+    if (existingCategory) {
+      return response.status(400).json({ error: "Category already exists" });
     }
+
+    const newCategory = await Category.create({
+      name,
+      path: filename,
+    });
+
+    return res.status(201).json({ newCategory });
+  }
+
+  async update(req, res) {
+    const schema = Yup.object({
+      name: Yup.string(),
+    });
+
+    try {
+      schema.validateSync(req.body, { abortEarly: false, strict: true });
+    } catch (error) {
+      return res.status(400).json({ error: error.errors });
+    }
+
+    const { name } = req.body;
+    const { id } = req.params;
+
+    let path;
+    if (req.file) {
+      const { filename } = req.file;
+      path = filename;
+    }
+
+    const existingCategory = await Category.findOne({
+      where: {
+        name,
+      },
+    });
+
+    if (existingCategory) {
+      return response.status(400).json({ error: "Category already exists" });
+    }
+
+    await Category.update(
+      {
+        name,
+        path,
+      },
+      {
+        where: {
+          id,
+        },
+      },
+    );
+
+    return res.status(201).json();
+  }
+
+  async index(_req, res) {
+    const categories = await Category.findAll();
+
+    return res.status(200).json(categories);
+  }
 }
 
-export default new CategoryController()
+export default new CategoryController();

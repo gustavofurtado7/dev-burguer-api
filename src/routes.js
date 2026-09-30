@@ -21,7 +21,8 @@ routes.post('/products', adminMiddleware ,upload.single('file') ,ProductControll
 routes.put('/products/:id', adminMiddleware ,upload.single('file') ,ProductController.update)
 routes.get('/products', ProductController.index);
 
-routes.post('/categories', adminMiddleware ,ProductController.store)
+routes.post('/categories', adminMiddleware ,upload.single('file') ,ProductController.store)
+routes.put('/categories/:id', adminMiddleware ,upload.single('file') ,ProductController.update)
 routes.get('/categories', ProductController.index);
 
 export default routes;
