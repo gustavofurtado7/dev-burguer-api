@@ -16,7 +16,10 @@ routes.post('/session', sessionController.store);
 
 
 routes.use(authMiddleware)
-routes.post('/products', authMiddleware ,upload.single('file'), ProductController.store)
-routes.get('/products', authMiddleware ,ProductController.index);
+routes.post('/products', upload.single('file') ,ProductController.store)
+routes.get('/products', ProductController.index);
+
+routes.post('/categories', ProductController.store)
+routes.get('/categories', ProductController.index);
 
 export default routes;
