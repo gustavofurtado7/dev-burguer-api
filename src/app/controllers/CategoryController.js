@@ -14,7 +14,7 @@ class CategoryController {
             return res.status(400).json({ error: error.errors })
         }
 
-
+        
         const { name } = req.body;
 
         const existingCategory = await Category.findOne({
